@@ -30,15 +30,17 @@ public:
 
 private:
 	void SwapBlocks(const float first_block, const float second_block);
-	int Block_Numbers(const float block);
-	void DrawSeparationLine(sf::RenderWindow &window);
+	void DrawSeparationLine(sf::RenderWindow &window, float const x_start, float const y_start) const;
 
 
 	int window_width_;
 	int window_height_;
 	sf::Texture texture;
+	sf::Image puzzle_image;
 	std::vector<Rect> Rect_Vector;
 
+	float scaling_coeff_w;
+	float scaling_coeff_h;
 
 };
 
