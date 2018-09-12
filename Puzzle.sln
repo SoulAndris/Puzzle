@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2019
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Puzzle", "Puzzle\Puzzle.vcxproj", "{BC14CAA5-CAD8-4A72-9C5F-F7C21E45C029}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC14CAA5-CAD8-4A72-9C5F-F7C21E45C029}.Debug|x64.ActiveCfg = Debug|x64
+		{BC14CAA5-CAD8-4A72-9C5F-F7C21E45C029}.Debug|x64.Build.0 = Debug|x64
+		{BC14CAA5-CAD8-4A72-9C5F-F7C21E45C029}.Debug|x86.ActiveCfg = Debug|Win32
+		{BC14CAA5-CAD8-4A72-9C5F-F7C21E45C029}.Debug|x86.Build.0 = Debug|Win32
+		{BC14CAA5-CAD8-4A72-9C5F-F7C21E45C029}.Release|x64.ActiveCfg = Release|x64
+		{BC14CAA5-CAD8-4A72-9C5F-F7C21E45C029}.Release|x64.Build.0 = Release|x64
+		{BC14CAA5-CAD8-4A72-9C5F-F7C21E45C029}.Release|x86.ActiveCfg = Release|Win32
+		{BC14CAA5-CAD8-4A72-9C5F-F7C21E45C029}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {852AC71C-C5A6-4A36-8115-FBA4990ABFA3}
+	EndGlobalSection
+EndGlobal
