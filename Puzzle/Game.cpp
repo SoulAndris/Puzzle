@@ -6,10 +6,10 @@ MiniGame::~MiniGame()
 }
 
 Game::Game() : 
-	window_height_(400)
-	, window_width_(400)
+	window_height_(840)
+	, window_width_(480)
 {
-	std::cout << "Hete start Puzzle Application";
+	std::cout << "Here start Puzzle Application";
 }
 
 
@@ -20,38 +20,38 @@ Game::~Game()
 
 void Game::Initialize()
 {
-	sf::RenderWindow window(sf::VideoMode(window_height_, window_width_), "Puzzle", sf::Style::Close);
+	sf::RenderWindow window(sf::VideoMode(window_height_, window_height_), "Puzzle", sf::Style::Close);
 	window.setFramerateLimit(60);
+
 	if (!texture.loadFromFile("image.png"))
 		return;
 
+	sf::Sprite main_sprite;
+	main_sprite.setTexture(texture);
+
+	//-----Scaling Image to Work size
+	sf::Vector2f const target_size(window_height_, window_height_);
+	main_sprite.setScale(target_size.x / main_sprite.getLocalBounds().width,
+						 target_size.y / main_sprite.getLocalBounds().height);
+	//-------------------------------
+	auto const size_main_sprite = main_sprite.getTextureRect();
+
+	auto const x_start = size_main_sprite.height / cColumns;
+	auto const y_start = size_main_sprite.width / cRows;
+
 	sf::Sprite sprite[cColumns*cRows];
-	int n = 0;
-	int table[7][7];
-	for (int i = 0; i < cColumns; i++)
+	auto n = 0;
+	int table[5][5];
+	for (auto i = 0; i < cColumns; i++)
 	{
-		for (int j = 0; j < cRows; j++)
+		for (auto j = 0; j < cRows; j++)
 		{
-			sprite[i].setTexture(texture);
-			sprite[i].setTextureRect(sf::IntRect(j * 120, i * 120, 120, 120));
-			table[i + 1][j + 1] = n;
+			sprite[i] = main_sprite;
+			sprite[i].setTextureRect(sf::IntRect(j * y_start, i * x_start, x_start, y_start));
+			table[i][j] = n;
 			n++;
 		}
 	}
-
-	float x_start = window_height_ / cColumns;
-	float y_start = window_width_ / cRows;
-
-	/*Rect tmp_coords;
-	float h, w = 0;
-	for (; h > window_height && w > window_width; )
-	{
-		tmp_coords.left = h;
-		tmp_coords.top = h += h + x_start;
-		tmp_coords.right = w += w + y_start;
-		tmp_coords.bottom = w;
-		Rect_Vector.push_back(tmp_coords);
-	}*/
 
 	while (window.isOpen())
 	{
@@ -67,9 +67,9 @@ void Game::Initialize()
 		{
 			for (auto j = 0; j < cRows; j++)
 			{
-				auto n = table[i + 1][j + 1];
-				sprite[n].setPosition(j * 50, i * 50);
-				window.draw(sprite[n]);
+				auto k = table[i][j];
+				sprite[k].setPosition(j * x_start, i * y_start);
+				window.draw(sprite[k]);
 
 			}
 		}
