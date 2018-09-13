@@ -1,4 +1,6 @@
 #include "Game.h"
+#include <random>
+#include  <ctime>
 
 
 MiniGame::~MiniGame()
@@ -6,8 +8,8 @@ MiniGame::~MiniGame()
 }
 
 Game::Game() :
-	window_width_(840)
-	,window_height_(480)
+	window_width_(700)
+	,window_height_(465)
 
 {
 	std::cout << "Here start Puzzle Application";
@@ -52,8 +54,8 @@ void Game::Initialize()
 
 	sf::Sprite sprite[cColumns*cRows];
 
-	auto sprite_counter = 0;
-	int table[cColumns][cRows] = {0};
+	int sprite_counter = 0;
+	int table[cColumns][cRows] = { 0 };
 	for (auto i = 0; i < cColumns; i++)
 		for (auto j = 0; j < cRows; j++)
 		{
@@ -63,32 +65,114 @@ void Game::Initialize()
 			sprite_counter++;
 		}
 
+	sf::Sprite works_spite[cColumns*cRows];
+
+	memcpy(works_spite, sprite, sizeof(works_spite));
+
+	Randomize_Puzzle(sprite);
+
+	int a = -1, b = -1;
+	bool Help_flag = false;
+
 	while (window.isOpen())
 	{
+		sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+		//std::cout << pixelPos.x << "\n";
+
+		int flag1 = 0, flag2 = 0;
+
 		sf::Event event;
+
+
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed)
+
+
+			if (event.type == sf::Event::Closed || isPermutation(works_spite, sprite))
 				window.close();
+			if (event.type == sf::Event::KeyPressed)
+				if (event.key.code == sf::Keyboard::F1)
+				{
+					Help_flag = !Help_flag;
+					std::cout << "\n" << "Pressed F1 ";
+				}
+			if (event.type == sf::Event::MouseButtonPressed)
+				if (event.key.code == sf::Mouse::Left)
+				{
+					if(sf::Mouse::getPosition(window).x < window_width_ && sf::Mouse::getPosition(window).y < window_height_)
+					{
+						//std::cout << std::endl << "Click to game field";
+
+						int c = 0;
+
+							for (auto i : sprite)
+							{
+								if (i.getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y))
+								{
+									std::cout << "\n" << "isClicked sprite one in number= " << c;
+									flag1 = 1;
+									a == -1 ? a = c : b = c;
+								}
+								else
+									c++;
+							}
+
+						if(a != -1 && b!= -1)
+						{
+							sf::Sprite tmp_sprite;
+
+							/*tmp_sprite.setTextureRect(sprite[a].getTextureRect());
+							sprite[a].setTextureRect(sprite[b].getTextureRect());
+							sprite[b].setTextureRect(tmp_sprite.getTextureRect());*/
+
+							tmp_sprite = sprite[a];
+							sprite[a] = sprite[b];
+							sprite[b] = tmp_sprite;
+
+
+							a = b = -1;
+						}
+
+					}
+				}
 		}
 
 		window.clear(sf::Color::White);
-		for (auto i = 0; i < cColumns; i++)
-			for (auto j = 0; j < cRows; j++)
-			{
-				auto k = table[i][j];
-				sprite[k].setPosition(scaling_coeff_w * i * w_start, scaling_coeff_h * j * h_start);
-				window.draw(sprite[k]);
 
-			}
-		//window.draw((main_sprite));
+		if(!Help_flag)
+		{
+			for (auto i = 0; i < cColumns; i++)
+				for (auto j = 0; j < cRows; j++)
+				{
+					auto k = table[i][j];
+					sprite[k].setPosition(/*scaling_coeff_w*/ i * w_start, /*scaling_coeff_h*/ j * h_start);
+					window.draw(sprite[k]);
+
+				}
+		}
+		else
+		{
+			window.draw((main_sprite));
+		}
+
 		DrawSeparationLine(window, w_start, h_start);
 		window.display();
 	}
 }
 
+bool Game::isPermutation(sf::Sprite *main, sf::Sprite *child)
+{
+	for(auto i = 0; i < (cColumns * cRows); i++)
+	{
+		if (main[i].getTextureRect() != child[i].getTextureRect())
+			return false;
+	}
+	return  true;
+}
+
 void Game::Click(float x, float y)
 {
+
 }
 
 bool Game::IsCompleted() const
@@ -129,3 +213,21 @@ void Game::DrawSeparationLine(sf::RenderWindow & window, float const x_start, fl
 	}
 
 }
+
+void Game::Randomize_Puzzle(sf::Sprite *sprite_tmp)
+{
+	sf::Sprite local_spite;
+	int a, b;
+	srand(time(0));
+
+	for (int i = 0; i < 10000; i++)
+	{
+		a = rand() % (cColumns * cRows -1);
+		b = rand() % (cColumns * cRows -1);
+		local_spite = sprite_tmp[a];
+		sprite_tmp[a] = sprite_tmp[b];
+		sprite_tmp[b] = local_spite;
+	}
+
+}
+
