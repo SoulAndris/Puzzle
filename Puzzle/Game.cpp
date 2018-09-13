@@ -1,16 +1,19 @@
 #include "Game.h"
 #include <random>
-#include  <ctime>
+#include <ctime>
 
 
 MiniGame::~MiniGame()
 {
 }
 
-Game::Game() :
-	window_width_(700)
-	,window_height_(465)
-
+Game::Game() 
+	: window_width_(700)
+	, window_height_(465)
+	, scaling_coeff_w(1)
+	, scaling_coeff_h(1)
+	, firts_sprite(-1)
+	, second_sprite(-1)
 {
 	std::cout << "Here start Puzzle Application";
 }
@@ -23,7 +26,7 @@ Game::~Game()
 
 void Game::Initialize()
 {
-	sf::RenderWindow window(sf::VideoMode(window_width_, window_height_), "Puzzle", sf::Style::Close);
+	window.create(sf::VideoMode(window_width_, window_height_), "Puzzle", sf::Style::Close);
 	window.setFramerateLimit(60);
 
 	if (!puzzle_image.loadFromFile("image.png"))
@@ -52,10 +55,8 @@ void Game::Initialize()
 	std::cout << std::endl << w_start;
 	std::cout << std::endl << h_start;
 
-	sf::Sprite sprite[cColumns*cRows];
-
 	int sprite_counter = 0;
-	int table[cColumns][cRows] = { 0 };
+	int table[cColumns][cRows] = {{0}};
 	for (auto i = 0; i < cColumns; i++)
 		for (auto j = 0; j < cRows; j++)
 		{
@@ -65,30 +66,21 @@ void Game::Initialize()
 			sprite_counter++;
 		}
 
-	sf::Sprite works_spite[cColumns*cRows];
-
-	memcpy(works_spite, sprite, sizeof(works_spite));
+	memcpy(static_cast<void*>(works_spite), sprite, sizeof(works_spite));
 
 	Randomize_Puzzle(sprite);
 
-	int a = -1, b = -1;
 	bool Help_flag = false;
 
 	while (window.isOpen())
 	{
-		sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
-		//std::cout << pixelPos.x << "\n";
-
-		int flag1 = 0, flag2 = 0;
-
 		sf::Event event;
-
 
 		while (window.pollEvent(event))
 		{
 
 
-			if (event.type == sf::Event::Closed || isPermutation(works_spite, sprite))
+			if (event.type == sf::Event::Closed || IsCompleted())
 				window.close();
 			if (event.type == sf::Event::KeyPressed)
 				if (event.key.code == sf::Keyboard::F1)
@@ -98,94 +90,72 @@ void Game::Initialize()
 				}
 			if (event.type == sf::Event::MouseButtonPressed)
 				if (event.key.code == sf::Mouse::Left)
-				{
-					if(sf::Mouse::getPosition(window).x < window_width_ && sf::Mouse::getPosition(window).y < window_height_)
-					{
-						//std::cout << std::endl << "Click to game field";
-
-						int c = 0;
-
-							for (auto i : sprite)
-							{
-								if (i.getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y))
-								{
-									std::cout << "\n" << "isClicked sprite one in number= " << c;
-									flag1 = 1;
-									a == -1 ? a = c : b = c;
-								}
-								else
-									c++;
-							}
-
-						if(a != -1 && b!= -1)
-						{
-							sf::Sprite tmp_sprite;
-
-							/*tmp_sprite.setTextureRect(sprite[a].getTextureRect());
-							sprite[a].setTextureRect(sprite[b].getTextureRect());
-							sprite[b].setTextureRect(tmp_sprite.getTextureRect());*/
-
-							tmp_sprite = sprite[a];
-							sprite[a] = sprite[b];
-							sprite[b] = tmp_sprite;
-
-
-							a = b = -1;
-						}
-
-					}
-				}
+						Click(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
 		}
 
 		window.clear(sf::Color::White);
 
-		if(!Help_flag)
+		if (!Help_flag)
 		{
 			for (auto i = 0; i < cColumns; i++)
 				for (auto j = 0; j < cRows; j++)
 				{
 					auto k = table[i][j];
-					sprite[k].setPosition(/*scaling_coeff_w*/ i * w_start, /*scaling_coeff_h*/ j * h_start);
+					sprite[k].setPosition(/*scaling_coeff_w* */ i * w_start, /*scaling_coeff_h* */ j * h_start);
 					window.draw(sprite[k]);
 
 				}
+			DrawSeparationLine(window, w_start, h_start);
 		}
 		else
-		{
 			window.draw((main_sprite));
-		}
 
-		DrawSeparationLine(window, w_start, h_start);
 		window.display();
-	}
-}
 
-bool Game::isPermutation(sf::Sprite *main, sf::Sprite *child)
-{
-	for(auto i = 0; i < (cColumns * cRows); i++)
-	{
-		if (main[i].getTextureRect() != child[i].getTextureRect())
-			return false;
 	}
-	return  true;
 }
 
 void Game::Click(float x, float y)
 {
+	if (!(x < window_width_ && y <window_height_))
+		return;
+	auto c = 0;
 
+	for (auto i : sprite)
+	{
+		if (i.getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y))
+			firts_sprite == -1 ? firts_sprite = c : second_sprite = c;
+		else
+			c++;
+	}
+
+	if (firts_sprite >= 0 && second_sprite >= 0)
+		if ((firts_sprite < (cColumns * cRows)) && (second_sprite < (cColumns * cRows)))
+			SwapBlocks(firts_sprite, second_sprite);
 }
 
 bool Game::IsCompleted() const
 {
-	return false;
+	for (auto i = 0; i < (cColumns * cRows); i++)
+	{
+		if (sprite[i].getTextureRect() != works_spite[i].getTextureRect())
+			return false;
+	}
+	return  true;
 }
 
 void Game::Render() const
 {
 }
 
-void Game::SwapBlocks(const float first_block, const float second_block)
+void Game::SwapBlocks(int const first_block, int const second_block)
 {
+
+	auto const tmp_sprite = sprite[first_block];
+	sprite[first_block] = sprite[second_block];
+	sprite[second_block] = tmp_sprite;
+
+	firts_sprite = second_sprite = -1;
 }
 
 

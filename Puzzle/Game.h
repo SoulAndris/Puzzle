@@ -28,20 +28,28 @@ public:
 	void Render() const;
 
 private:
-	void SwapBlocks(const float first_block, const float second_block);
+
+	void SwapBlocks(int const first_block, int const second_block);
 	void DrawSeparationLine(sf::RenderWindow &window, float const x_start, float const y_start) const;
 	void Randomize_Puzzle(sf::Sprite *m);
-	bool isPermutation(sf::Sprite *main, sf::Sprite *child);
 
+private:
 
+	sf::RenderWindow window;
 	int window_width_;
 	int window_height_;
+
 	sf::Texture texture;
 	sf::Image puzzle_image;
+
+	sf::Sprite  sprite[cColumns * cRows],
+				works_spite[cColumns * cRows];
 
 	float scaling_coeff_w;
 	float scaling_coeff_h;
 
+	int firts_sprite;
+	int second_sprite;
 };
 
 
