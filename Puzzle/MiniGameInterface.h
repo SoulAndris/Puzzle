@@ -22,8 +22,8 @@ public:
 
 public:
 	static const int cTextureId = 1;
-	static const int cColumns = 3;
-	static const int cRows = 3;
+	static const int cColumns = 2;
+	static const int cRows = 2;
 
 };
 
