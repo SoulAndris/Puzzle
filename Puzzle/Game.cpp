@@ -16,8 +16,7 @@ Game::Game()
 	, firts_sprite(-1)
 	, second_sprite(-1)
 	, Help_Flag(false)
-	, w_start(0)
-	, h_start(0)
+	, rect_sprite_({0})
 {
 	window = new sf::RenderWindow;
 	sprite = new sf::Sprite[cColumns * cRows];
@@ -43,29 +42,26 @@ void Game::Initialize()
 	if (!texture.loadFromImage(puzzle_image)) //Load texture of image
 		return;
 
-	main_sprite.setTexture(texture);
+	main_sprite.setTexture(texture); //generation sprite
 
-	//-----Scaling Image to Work size
+	//-----Scaling Image to Work size  (This code is for scaling the uploaded image in cases where it does not fit the size of the game window (I can implement it if needed) )
 	sf::Vector2f const target_size(window_width_, window_height_);
 	main_sprite.setScale(target_size.x / main_sprite.getLocalBounds().width,
-						 target_size.y / main_sprite.getLocalBounds().height);
-	//-------------------------------
-
-	w_start = main_sprite.getGlobalBounds().width / cColumns;
-	h_start = main_sprite.getGlobalBounds().height / cRows;
+						 target_size.y / main_sprite.getLocalBounds().height);     
 
 	scaling_coeff_w = main_sprite.getScale().x;
 	scaling_coeff_h = main_sprite.getScale().y;
+	//-------------------------------
 
-	auto sprite_counter = 0;
+	rect_sprite_.left = main_sprite.getGlobalBounds().width / cColumns;
+	rect_sprite_.top = main_sprite.getGlobalBounds().height / cRows;
 
-	for (auto i = 0; i < cColumns; i++)
-		for (auto j = 0; j < cRows; j++)
+	for (int i = 0; i < cColumns; i++)
+		for (int j = 0; j < cRows; j++)
 		{
-			sprite[sprite_counter] = main_sprite;
-			sprite[sprite_counter].setTextureRect(sf::IntRect(i * w_start, j * h_start, w_start, h_start));
-			Game_table[i][j] = sprite_counter;
-			sprite_counter++;
+			sprite[(i * cColumns ) + j] = main_sprite;
+			sprite[(i * cColumns ) + j].setTextureRect(sf::IntRect(i * rect_sprite_.left, j * rect_sprite_.top, rect_sprite_.left, rect_sprite_.top));
+			Game_table[i][j] = (i * cColumns) + j;
 		}
 
 	memcpy(default_puzzle_sprite, sprite, sizeof (*default_puzzle_sprite) * (cColumns * cRows));
@@ -82,7 +78,7 @@ void Game::Initialize()
 			if (event.type == sf::Event::KeyPressed)
 				if (event.key.code == sf::Keyboard::F1)
 					Help_Flag = !Help_Flag;
-			if (event.type == sf::Event::MouseButtonPressed && !Help_Flag && !IsCompleted())
+			if (event.type == sf::Event::MouseButtonPressed && !Help_Flag && !IsCompleted() )
 				if (event.key.code == sf::Mouse::Left)
 						Click(sf::Mouse::getPosition(*window).x, sf::Mouse::getPosition(*window).y);
 		}
@@ -100,11 +96,11 @@ void Game::Render() const
 		for (auto i = 0; i < cColumns; i++)
 			for (auto j = 0; j < cRows; j++)
 			{
-				auto k = Game_table[i][j];
-				sprite[k].setPosition(i * w_start, j * h_start);
+				const auto k = Game_table[i][j];
+				sprite[k].setPosition(i * rect_sprite_.left, j * rect_sprite_.top);
 				window->draw(sprite[k]);
 			}
-		DrawSeparationLine(window, w_start, h_start);
+		DrawSeparationLine(window, rect_sprite_.left, rect_sprite_.top);
 	}
 	else
 		window->draw((main_sprite));
@@ -159,7 +155,7 @@ void Game::DrawSeparationLine(sf::RenderWindow *window, float const x_start, flo
 
 	for (size_t i = 0; i < cColumns; i++)
 	{
-		vertical_line[i].setSize(sf::Vector2f(0.5, window_height_));
+		vertical_line[i].setSize(sf::Vector2f(1.f, window_height_));
 		vertical_line[i].setFillColor(sf::Color::White);
 		vertical_line[i].setPosition(x_start * (i),0);
 
@@ -168,13 +164,12 @@ void Game::DrawSeparationLine(sf::RenderWindow *window, float const x_start, flo
 
 	for (size_t i = 0; i < cRows; i++)
 	{
-		horizon_line[i].setSize(sf::Vector2f(window_width_, 0.5));
+		horizon_line[i].setSize(sf::Vector2f(window_width_, 1.f));
 		horizon_line[i].setFillColor(sf::Color::White);
 		horizon_line[i].setPosition(0, y_start * (i));
 
 		window->draw(horizon_line[i]);
 	}
-
 }
 
 void Game::Randomize_Puzzle(sf::Sprite *sprite_tmp)

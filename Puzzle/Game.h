@@ -24,9 +24,9 @@ public:
 
 private:
 
-	void SwapBlocks(int const first_block, int const second_block);
-	void DrawSeparationLine(sf::RenderWindow *window, float const x_start, float const y_start) const;
-	static void Randomize_Puzzle(sf::Sprite *m);
+	void SwapBlocks(int const first_block, int const second_block);  // function of changing two pieces of the puzzle in places
+	void DrawSeparationLine(sf::RenderWindow *window, float const x_start, float const y_start) const;  //function of drawing the dividing lines of the puzzle
+	static void Randomize_Puzzle(sf::Sprite *m); //function of random mixing of puzzle pieces
 
 	sf::RenderWindow *window;
 
@@ -47,13 +47,11 @@ private:
 		second_sprite;
 
 	bool Help_Flag;
-	sf::Event event;
+	sf::Event event{};
 
-	float w_start,
-		  h_start;
+	Rect rect_sprite_;
 
 	int Game_table[cColumns][cRows] = {{0}};
-
 };
 
 
